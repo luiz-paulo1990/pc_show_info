@@ -1,55 +1,39 @@
 import tkinter as tk
-import socket
-import requests
-import psutil
+from network import get_local_ip, get_public_ip
+from memory import get_memory_info
+from system import get_disk_info, get_cpu_phisical_cores, get_cpu_logical_cores, get_cpu_frequency, get_cpu_usage, get_cpu_name
 
-# Pega o IP local da máquina e retorna ele na função
-def get_local_ip():
-    try:
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s.connect(("8.8.8.8", 80))
-        ip_adress = s.getsockname()[0]
-        s.close()
-        return ip_adress
-    except Exception as e:
-        return f"Erro ao obter IP: {e}"
-    
-# Pega o IP público da máquina e retorna ele na função
-def get_public_ip():
-    try:
-        response = requests.get("https://api64.ipify.org?format=text")
-        return response.text
-    except Exception as e:
-        return f'Erro ao obter IP Público'
-    
-# Pega as informações de memória da máquina
-def get_memory_info():
-    try:
-       memory = psutil.virtual_memory()
-       memory_used = f'{memory.percent}% usado'
-       memory_total = f'{memory.total / (1024**3):.2f} GB total' 
-       return memory_used, memory_total
-    except Exception as e:
-        return f'Erro ao obter memória: {e}'
+# Pegando informações do sistema para exibir no IpShow
+cpu_usage = get_cpu_usage()
+cpu_phisical_cores = get_cpu_phisical_cores()
+cpu_logical_cores = get_cpu_logical_cores()
+cpu_frequency = get_cpu_frequency()
+cpu_name = get_cpu_name()
+print (cpu_name)
 
-# Para atualizar a informação de memória usada na interface
+# Função para atualizar as informações na interface
 def update_memory_label():
     memory_used, memory_total = get_memory_info()
     label_memory_used.config(text=f'Mem usada: {memory_used}')
-
-    # Agenda a próxima atualização da memória usada em 1 segundo:
-    root.after(1000, update_memory_label)
+    label_memory_total.config(text=f'Mem total: {memory_total}')
     
-# Pega as informações da memória
-memory_used, memory_total = get_memory_info()
+    root.after(1000, update_memory_label)
+
+# Função para atualizar as informações na interface
+def update_cpu_usage_label():
+    cpu_usage = get_cpu_usage()
+    label_cpu_usage.config(text=f'CPU uso: {cpu_usage}')
+    
+    
+    root.after(1000, update_cpu_usage_label)
 
 # Criar janela principal
 root = tk.Tk()
 root.title("Meus ip's")
 
 # Definir tamanho e posição (exemplo: 300x100 pixels no canto superior direito)
-largura = 200
-altura = 100
+largura = 300
+altura = 200
 pos_x = root.winfo_screenmmwidth() - largura - 20 # 20px de margem da borda direita
 pos_y = 20
 
@@ -69,19 +53,32 @@ root.attributes('-alpha', 0.9) # 0.0 = 100% transparente, 1.0 = 100% opaco
 root.attributes('-topmost', True) # Janela sempre no topo
 
 # Criar rótulos com IP's e outras informações
-label = tk.Label(root, text=f'Ip local: {get_local_ip()}', font=("Arial", 8, "bold"), fg="black", pady=0) 
-label2 = tk.Label(root, text=f'Ip público: {get_public_ip()}', font=("Arial", 8, "bold"), fg="black", pady=0)
-label_memory_used = tk.Label(root, text=f'Mem usada: {memory_used}', font=("Arial", 8, "bold"), fg="black", pady=0) 
-label_memory_total = tk.Label(root, text=f'Mem total: {memory_total}', font=("Arial", 8, "bold"), fg="black", pady=0)
+label_local_ip = tk.Label(root, text=f'Ip local: {get_local_ip()}', font=("Arial", 8, "bold"), fg="black", pady=0) 
+label_public_ip = tk.Label(root, text=f'Ip público: {get_public_ip()}', font=("Arial", 8, "bold"), fg="black", pady=0)
+label_memory_used = tk.Label(root, text=f'Mem usada: 0%', font=("Arial", 8, "bold"), fg="black", pady=0) 
+label_memory_total = tk.Label(root, text=f'Mem total: 0 GB', font=("Arial", 8, "bold"), fg="black", pady=0)
+label_cpu_name = tk.Label(root, text=f'Processador: {cpu_name}', font=("Arial", 8, "bold"), fg="black", pady=0)
+label_cpu_usage = tk.Label(root, text=f'CPU uso: {cpu_usage}', font=("Arial", 8, "bold"), fg="black", pady=0)
+label_cpu_phisical_cores = tk.Label(root, text=f'Núcleos: {cpu_phisical_cores}', font=("Arial", 8, "bold"), fg="black", pady=0)
+label_cpu_logical_cores = tk.Label(root, text=f'Núcleos: {cpu_logical_cores}', font=("Arial", 8, "bold"), fg="black", pady=0)
+label_cpu_frequency = tk.Label(root, text=f'Frequência: {cpu_frequency}', font=("Arial", 8, "bold"), fg="black", pady=0)
+
 
 # Usar place para posicionar os rótulos sem espaçamento extra
-label.place(x=5, y=5)  # Posição do rótulo 1 (IP local)
-label2.place(x=5, y=20)  # Posição do rótulo 2 (IP público)
-label_memory_used.place(x=5, y=45)  # Posição do rótulo 3 (Memória usada)
-label_memory_total.place(x=5, y=60)  # Posição do rótulo 4 (Memória total)
+label_local_ip.place(x=5, y=5)
+label_public_ip.place(x=5, y=20)
+label_memory_used.place(x=5, y=45)
+label_memory_total.place(x=5, y=60)
+label_cpu_name.place(x=5, y=85)
+label_cpu_phisical_cores.place(x=5, y=100)
+label_cpu_logical_cores.place(x=5, y=115)
+label_cpu_frequency.place(x=5, y=130)
+label_cpu_usage.place(x=5, y=145)
 
-# Iniciar o loop de atualização da memória
+
+# Iniciar o loop de atualização da memória/uso da CPU
 update_memory_label()
+update_cpu_usage_label()
 
 # Iniciar loop da interface
 root.mainloop()
