@@ -40,7 +40,7 @@ root.geometry(f'{largura}x{altura}+{pos_x}+{pos_y}')
 # Criar um botão "X" para fechar, usando place para fixá-lo no canto superior direito
 close_button = tk.Button(root, text="❌", font=("Arial", 4, "bold"), fg="white", bg="red", 
                          border=0, command=root.destroy, cursor="hand2")
-close_button.place(x=largura-15, y=5, width=10, height=10)  # Fixar no canto superior direito
+close_button.place(x=largura-18, y=3, width=15, height=15)  # Fixar no canto superior direito
 
 # Deixa o fundo transparente
 root.attributes('-alpha', 0.9) # 0.0 = 100% transparente, 1.0 = 100% opaco
